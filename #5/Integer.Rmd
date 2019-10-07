@@ -1,0 +1,78 @@
+---
+title: '#5'
+author: "Vamsi"
+date: "10/7/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+library(lpSolveAPI)
+
+
+
+## create IP object
+apm.ip <- make.lp(nrow = 9, ncol = 12) # nrow is the number of nodes, ncol is the numnber of arcs
+lp.control(apm.ip, sense="max")  #max condition
+# create names for nodes and arcs
+##
+               ## 5     3      3    2      4    4      1     2     6     5     4     7
+arc.names <- c ( "x12","x13","x35","x25","x24","x47","x46","x58","x57","x69","x79","x89")       
+node.names <- c("node1", "node2", "node3", "node4", "node5", "node6","node7", "node8", "node9")#"node10", "node11", "node12")
+
+# rename the IP object
+rownames(apm.ip) <- node.names
+colnames(apm.ip) <- arc.names
+
+## obj function
+activity <- c(5,3,3,2,4,4,1,2,6,5,4,7)
+set.objfn(apm.ip, activity )  #]
+
+## set constraints LHS
+set.row(apm.ip, 1, c(1, 1), indices = c(1, 2) )     # node 1 (starting node)
+set.row(apm.ip, 2, c(1, -1 ,-1), indices = c(1,4,5))   # node 2 (intermediate node)
+set.row(apm.ip, 3,c(1,-1), indices = c(2, 3) )     # node 3(intermediate node)
+set.row(apm.ip, 4, c(1, 1, -1, -1), indices = c(4, 3, 9, 8))  # node 4 (intermediate node)
+set.row(apm.ip, 5, c(1, -1 ,-1), indices = c(5,6,7))   # node 5 (intermediate node)
+set.row(apm.ip, 6,c(1,-1), indices = c(7,10) )     # node 6(intermediate node)
+set.row(apm.ip, 7, c(1, 1 ,-1), indices = c(6,9,11))  # node 7 (intermediate node
+set.row(apm.ip, 8,c(1,-1), indices = c(8,12) )     # node 8(starting node)
+set.row(apm.ip, 9, c(1, 1, 1), indices = c(10,11,12)) #node 9  (ending node)
+
+## set constraints type
+set.constr.type(apm.ip, rep("="), 9)
+
+## set constraint RHS
+rhs <- c(1, rep(0, 7), 1)
+set.rhs(apm.ip, rhs)
+
+## set all variables type to be binary
+set.type(apm.ip, 1:12, "binary")
+
+## solve the IP problem
+solve(apm.ip)
+get.objective(apm.ip)
+get.variables(apm.ip)
+
+# put optimal values beside of variable names for better understanding of th results
+cbind(arc.names, get.variables(apm.ip))
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
