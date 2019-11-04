@@ -1,0 +1,213 @@
+---
+title: "Untitled"
+author: "Vamsi"
+date: "11/4/2019"
+output: pdf_document
+---
+
+```{r}
+library(lpSolveAPI)
+facility1 <- read.lp("DMU1.lp")
+facility1
+solve(facility1)
+get.variables(facility1)
+get.objective(facility1)
+
+
+```
+
+**Comment**:The solution refers that the objective value is 1, which indicates that we are able to achieve maximum efficiency for DMU(1).It is most efficient.
+
+```{r}
+facility2 <- read.lp("DMU2.lp")
+facility2
+solve(facility2)
+get.variables(facility2)
+get.objective(facility2)
+```
+
+**Comment**: The solution refers that the objective value is 1, which indicates that we are able to achieve maximum efficiency for DMU(2).It is the most efficient
+
+```{r}
+facility3 <- read.lp("DMU3.lp")
+facility3
+solve(facility3)
+get.variables(facility3)
+get.objective(facility3)
+```
+**Comment**:The solution indicates that the objective value is 1, which indicates that we are able to achieve maximum efficiency for DMU(3).
+It is the most efficient
+
+```{r}
+facility4 <- read.lp("DMU4.lp")
+facility4
+solve(facility4)
+get.variables(facility4)
+get.objective(facility4)
+```
+**Comment**:The solution indicates that the objective value is 1, which indicates that we are able to achieve maximum efficiency for DMU(4).It is the most efficient
+
+```{r}
+facility5 <- read.lp("DMU5.lp")
+facility5
+solve(facility5)
+get.variables(facility5)
+get.objective(facility5)
+```
+**Comment**:The solution indicates that the objective value is `r get.objective(DMU5)`, which indicates that we are not able to achieve maximum efficiency for DMU(5).Therefore, DMU(5) is not effiecient.
+
+```{r}
+facility6 <- read.lp("DMU6.lp")
+facility6
+solve(facility6)
+get.variables(facility6)
+get.objective(facility6)
+```
+**Comment**:The solution indicates that the objective value is `r get.objective(DMU6)`, which indicates that we are not able to achieve maximum efficiency for DMU(6).Therefore, DMU(6) is not effiecient.
+
+## benchmarking libary for DEA
+
+```{r}
+
+library(Benchmarking)  ###run DEA analysis using the benchmarking library
+
+
+## reading the data as input and output as vectors
+
+s <- matrix(c(150,400,320,520,350,320,.2,.7,1.2,2,1.2,.7),ncol = 2)
+t <- matrix(c(14,14,42,28,19,14,3.5,21,10.5,42,25,15),ncol = 2)
+colnames(t) <- c("Reimbursed patient days","privately paid patient-days")
+colnames(s) <- c("staff hours per day","supplies per day")
+s
+t
+
+```
+
+DEA Analysis:
+Running crs as option
+```{r}
+f1 <- dea(s,t,RTS = "crs")            # input and output 
+f1
+```
+**Comment**: The results tells us that DMUs 1,2, 3, and 4 are efficient. DMU(6) is only `r e$eff[6]` not efficient, and DMU(5) is `r e$eff[5]` not efficient.
+
+
+```{r}
+
+peers(f1)                             # identify the peers
+lambda(f1)                            # identify the relative weights given to the peers
+
+```
+**Comment**: The peer units for DMU(5) are [`r peers(e)[5, ]`] (1 ,2,4), with relative weights [`r lambda(e)[5, ]`] (0.2,0.080, 0, 0.538). Similary for DMU(6), the peer units are [`r peers(e)[6, ]`] (1,2,4), with weights [`r lambda(e)[6, ]`] (0.342, 0.394 ,0,0.131), respectively.
+
+Running with crs along with fdh as option
+```{r}
+f2 <- dea(s,t,RTS = "fdh")            # input and output 
+f2
+peers(f2)                             # identify the peers
+lambda(f2)                            # identify the relative weights given to the peers
+
+
+```
+**Comment**: The results tells us that DMUs all are efficient. 
+
+Running  with CRS as option VRs
+```{r}
+f2 <- dea(s,t,RTS = "vrs")            # provide the input and output 
+f2
+
+```
+**Comment**: The results tells us that DMUs 1,2,3,4 and 5 are effiecient . DMU(6) is only `r e2$eff[6]` efficient.
+
+**Comment**: The peer units for DMU(6) are [`r peers(e2)[6, ]`] (1 ,2,5), with relative weights [`r lambda(e2)[6, ]`] (0.4014399 ,0.3422606,  0,  0, 0.2562995).
+
+Running with CRS as option DRS
+```{r}
+peers(f2)                             # identify the peers
+lambda(f2)                            # identify the relative weights given to the peers
+
+```
+**Comment**: The peer units for DMU(6) are [`r peers(e2)[6, ]`] (1 ,2,5), with relative weights [`r lambda(e2)[6, ]`] (0.4014399 ,0.3422606,  0,  0, 0.2562995).
+
+```{r}
+f3 <- dea(s,t,RTS = "drs")            # provide the input and output 
+f3
+
+```
+**Comment**: DMUs 1,2, 3, and 4 are efficient. DMU(6) is only `r e3$eff[6]` efficient, and DMU(5) is `r e3$eff[5]` efficient. 
+
+```{r}
+peers(f3)                             # identify the peers
+lambda(f3)                            # identify the relative weights given to the peers
+
+```
+**Comment**: The peer units for DMU(5) are [`r peers(e3)[5, ]`] (1 ,2,4), with relative weights [`r lambda(e3)[5, ]`] (0.2000000 ,0.08048142  ,0 ,0.5383307). Similary, for DMU(6), the peer units are [`r peers(e3)[6, ]`] (1,2,4), with weights [`r lambda(e3)[6, ]`] (0.3428571 ,0.39499264  ,0 ,0.1310751), respectively.
+
+```{r}
+f4 <- dea(s,t,RTS = "irs")            # provide the input and output 
+f4
+
+```
+**Comment**:DMU(6) is only `r e4$eff[6]` efficient.
+
+```{r}
+
+peers(f4)                             # identify the peers
+lambda(f4)                            # identify the relative weights given to the peers
+
+```
+**Comment**: The peer units for DMU(6) are [`r peers(e4)[6, ]`] (1 ,2,5), with relative weights [`r lambda(e4)[6, ]`] (0.4014399 ,0.3422606,  0,  0, 0.2562995).
+
+Running with CRS as option IRS2`1
+```{r}
+
+f5 <- dea(s,t,RTS = "irs2")            # provide the input and output 
+f5
+
+
+peers(f5)                             # identify the peers
+lambda(f5)                            # identify the relative weights given to the peers
+
+```
+**Comment**: All DMUs are efficient. 
+
+Running DEA analysis with CRS as option FDH+
+
+```{r}
+
+f6 <- dea(s,t,RTS = "fdh+")            # provide the input and output 
+f6
+
+peers(f6)                             # identify the peers
+lambda(f6)                            # identify the relative weights given to the peers
+
+```
+
+**Comment**: All DMUs are efficient. 
+
+Running DEA analysis with CRS as option VRS+
+
+```{r}
+
+f8 <- dea(s,t,RTS = "vrs+")            # provide the input and output 
+f8
+
+peers(f8)                             # identify the peers
+lambda(f8)                            # identify the relative weights given to the peers
+
+
+```
+
+
+**Comment**: DMUs all are efficient. 
+
+Running DEA analysis with CRS as option FRH
+```{r}
+f9 <- dea(s,t,RTS = "add")            # provide the input and output 
+f9
+
+peers(f9)                             # identify the peers
+lambda(f9)                            # identify the relative weights given to the peers
+
+```
+ **Comment**: All DMUs are efficient. 
