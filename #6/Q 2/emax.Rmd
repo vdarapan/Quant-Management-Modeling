@@ -1,0 +1,58 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+library(lpSolveAPI)
+gp <- read.lp("emax.lp")
+gp
+
+solve(gp)
+get.objective(gp)
+get.constraints(gp)
+get.variables(gp)
+
+```
+          z    x1          x2      x3     y1m          y1p   y2m
+          
+Applying the simplex method to this formulation yields an optimal solution of y1m = 0, y1p = 0, y2m = 8.33,  x1 = 8.33, x2 = 0, x3 = 0,This implies that y1 = 0 , so the first  goals are fully satisfied
+
+```{r}
+
+gp1 <- read.lp("emax _firststage.lp")
+gp1
+
+solve(gp1)
+get.objective(gp1)
+get.constraints(gp1)
+get.variables(gp1)
+```
+
+The solution is Z = 0, with x1 = 9.375, and y1p = 6.25. As we have an optimal solution, 
+
+```{r}
+
+gp2 <- read.lp("emax _secondstage.lp")
+gp2
+
+solve(gp2)
+get.objective(gp2)
+get.constraints(gp2)
+get.variables(gp2)
+```
+
+The solution is Z = 0, with x1 = 9.375, and y1p = 6.25. As we have an optimal solution,
+```{r}
+
+gp3 <- read.lp("emax _streamline.lp")
+gp3
+
+solve(gp3)
+get.objective(gp3)
+get.constraints(gp3)
+get.variables(gp3)
+```
+
